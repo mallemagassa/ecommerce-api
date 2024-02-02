@@ -2,10 +2,10 @@ import 'package:ecommerce/utils/SizeHeigth.dart';
 import 'package:flutter/material.dart';
 
 class PageTitel extends StatelessWidget {
-  final title1;
-  final title2;
+  final String title1;
+  final String? title2;
 
-  const PageTitel({required this.title1, required this.title2, super.key});
+  const PageTitel({required this.title1, this.title2, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -35,8 +35,7 @@ class PageTitel extends StatelessWidget {
           child: Row(
             children: [
               Text(
-               
-                title2,
+                title2 ?? '',
                 style: TextStyle(
                     color: Colors.blue,
                     fontSize: 16,

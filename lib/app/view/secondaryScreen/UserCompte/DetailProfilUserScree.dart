@@ -1,6 +1,7 @@
+import 'dart:convert';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ecommerce/app/controllers/RegisterController.dart';
-import 'package:ecommerce/app/view/secondaryScreen/UserCompte/DemoProfilPhoto.dart';
 import 'package:ecommerce/app/view/secondaryScreen/UserCompte/DemoUserPhoto.dart';
 import 'package:ecommerce/utils/DefaultTitle.dart';
 import 'package:ecommerce/utils/InputWidget.dart';
@@ -12,7 +13,7 @@ import 'package:get_storage/get_storage.dart';
 
 // ignore: must_be_immutable
 class DetailProfilUserScreen extends StatefulWidget {
-  DetailProfilUserScreen({super.key});
+  const DetailProfilUserScreen({super.key});
 
   @override
   State<DetailProfilUserScreen> createState() => _DetailProfilUserScreenState();
@@ -196,7 +197,7 @@ class _DetailProfilUserScreenState extends State<DetailProfilUserScreen> {
                               enabled: false,
                               textAlign: TextAlign.center,
                               name: '',
-                              initialValue:(Get.arguments['nameCom'] == 'null') ? '':Get.arguments['nameCom'],
+                              initialValue: (Get.arguments['nameCom'] == 'null') ? '': Get.arguments['nameCom'] ,
                               decoration: const InputDecoration(
                                 contentPadding: EdgeInsets.all(10),
                                 label: Text("Nom commercial",
@@ -256,4 +257,5 @@ class _DetailProfilUserScreenState extends State<DetailProfilUserScreen> {
     
     );
   }
+
 }

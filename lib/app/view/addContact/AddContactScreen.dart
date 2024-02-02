@@ -147,8 +147,6 @@ class _AddContactScreenState extends State<AddContactScreen> {
                         );
                       }),
             
-            
-           
         )])
     );
   }

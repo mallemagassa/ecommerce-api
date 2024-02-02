@@ -218,57 +218,50 @@ class _AddProductScreenState extends State<AddProductScreen> {
                                               AlignmentDirectional.bottomCenter,
                                           child: MainButton(
                                               onTap: !isLoading ? () async{
+                                                setState(() {
+                                                  isLoading = true;
+                                                });
 
-                                                if (_formKey.currentState?.saveAndValidate() ?? false) {
-                                                  debugPrint(_formKey.currentState?.value
-                                                      .toString());
-                                                  debugPrint('validation');
-                                                  // FocusScope.of(context).requestFocus(FocusNode());
-                                                  final map = _formKey.currentState!.value;
-                                                  final newMap = {
-                                                    ...map,
-                                                    'quantity': int.parse(map['quantity']) ,
-                                                    'price': int.parse(map['price']) ,
-                                                    'isSelected': false.obs,
-                                                    'image': productController.imageName.value,
-                                                  };
+                                                try {
+                                                  if (_formKey.currentState?.saveAndValidate() ?? false) {
+                                                    final map = _formKey.currentState!.value;
+                                                    final newMap = {
+                                                      ...map,
+                                                      'quantity': int.parse(map['quantity']),
+                                                      'price': int.parse(map['price']),
+                                                      'isSelected': false.obs,
+                                                      'image': productController.imageName.value,
+                                                    };
 
-                                                  print(newMap);
-                                                  ProductModel product = ProductModel.fromMap(newMap);
-                                                  //print(seller.phone);
-                                                  
-                                              
-                                                  await ProductApi().createProduct(productController.imagePath.value, productController.imageName.value, product);
-                                                  Get.snackbar(
-                                                    '',
-                                                    '',
-                                                   
-                                                    duration: const Duration(seconds: 3),
-                                                    messageText: const Text(
-                                                    'Produits est ajouter avec succes',
-                                                      textAlign: TextAlign.center,
-                                                      style: TextStyle(
-                                                        fontSize: 24
+                                                    print(newMap);
+                                                    ProductModel product = ProductModel.fromMap(newMap);
+
+                                                    await ProductApi().createProduct(productController.imagePath.value, productController.imageName.value, product);
+
+                                                    Get.snackbar(
+                                                      '',
+                                                      '',
+                                                      duration: const Duration(seconds: 3),
+                                                      messageText: const Text(
+                                                        'Produits est ajouté avec succès',
+                                                        textAlign: TextAlign.center,
+                                                        style: TextStyle(fontSize: 24),
                                                       ),
-                                                    ),
-                                                    titleText: const Icon(Icons.check, color: Colors.green, size: 32,),
-                                                  
-                                                  );
+                                                      titleText: const Icon(Icons.check, color: Colors.green, size: 32,),
+                                                    );
 
-                                                  Get.offAndToNamed('/product');
-
-                                                   setState(() {
-                                                    isLoading = true;
-                                                    // productController.imagePath.value = '';
-                                                    // productController.imagePath.value = '';
+                                                    Get.offAndToNamed('/product');
+                                                  } else {
+                                                    debugPrint(_formKey.currentState?.value.toString());
+                                                    debugPrint('Validation échouée');
+                                                  }
+                                                } catch (error) {
+                                                  // Gérer les erreurs ici
+                                                } finally {
+                                                  setState(() {
+                                                    isLoading = false; // Assurez-vous que isLoading est rétabli après la requête
                                                   });
-                                                          
-                                                } else {
-                                                  debugPrint(_formKey.currentState?.value
-                                                      .toString());
-                                                  debugPrint('validation échoue');
                                                 }
-                                               
                                               } : null,
                                               icon: Icons.check,
                                               color: Colors.black)),

@@ -14,8 +14,8 @@ import 'package:getwidget/components/list_tile/gf_list_tile.dart';
 import 'package:intl/intl.dart';
 import 'package:zoom_tap_animation/zoom_tap_animation.dart';
 
-class DetailCartScreen extends StatelessWidget {
-  DetailCartScreen({super.key});
+class DetailCartReceirveScreen extends StatelessWidget {
+  DetailCartReceirveScreen({super.key});
   final CartController cartController = Get.put(CartController());
   final argumentData = Get.arguments;
   final box = GetStorage();
@@ -94,7 +94,7 @@ class DetailCartScreen extends StatelessWidget {
                   child: Stack(
                     children: [
                       FutureBuilder<List<OrderModel>>(
-                        future: OrderApi().getAuthOrders(argumentData['id'] ?? 0), 
+                        future:  OrderApi().getOrderAuthReceirve(argumentData['id'] ?? 0), 
                         builder: (context, snapshot) {
                           if (snapshot.hasData) {
                             List<OrderModel> orders = snapshot.data!; 

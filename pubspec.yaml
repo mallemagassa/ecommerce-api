@@ -48,8 +48,8 @@ dependencies:
   flutter_chat_ui: ^1.6.10
   file_picker: ^6.1.1
   bubble: ^1.2.1
-  firebase_core: ^2.23.0
-  firebase_auth: ^4.14.1
+  firebase_core: ^2.24.2
+  firebase_auth: ^4.16.0
   get_storage: ^2.1.1
   flutter_cache_manager: ^3.3.1
   http: ^1.1.2
@@ -60,7 +60,7 @@ dependencies:
   pusher_client_fixed: ^0.0.2+2
   laravel_echo: ^1.0.0-beta.1
   zoom_widget: ^2.0.1
-  firebase_messaging: ^14.7.9
+  firebase_messaging: ^14.7.10
   flutter_launcher_icons: ^0.13.1
   flutter_local_notifications: ^16.3.0
 

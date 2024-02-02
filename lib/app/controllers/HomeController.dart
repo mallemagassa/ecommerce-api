@@ -11,6 +11,10 @@ class HomeController extends GetxController {
     pageController.jumpToPage(page);
   }
 
+  void changePage(int newPage) {
+    currentPage.value = newPage;
+  }
+
   void animateToTab(int page) {
     currentPage.value = page;
     pageController.animateToPage(page, duration: Duration(milliseconds: 300), curve: Curves.ease);

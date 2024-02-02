@@ -18,6 +18,7 @@ class NameRoute {
   static const String detailsProductImage = '/detailsProductImage';
   static const String detailProfilUserScreen = '/detailProfilUserScreen';
   static const String detailCartScreen = '/detailCartScreen';
+  static const String detailCartReceirveScreen = '/detailCartReceirveScreen';
   static const String searchPage = '/searchPage';
   static const String addContactScreen = '/addContactScreen';
   static const String detailCartOwnerScreen = '/detailCartOwnerScreen';

@@ -32,14 +32,15 @@ void main() async{
     await ContactConfig().loadAndStoreContacts();
     await ContactConfig().loadAndgetConversation();
     await ContactConfig().loadAndgetMyOders();
+    await ContactConfig().loadAndgetMyOdersReceirve();
     await ContactConfig().refreshContactsLocally();
     await NotificationSetup().initNotification();
     //await ProductApi().getData();
-    //await ChatMessagesStorage(). getMessageFromApi();
+    //await ChatMessag44xdesStorage(). getMessageFromApi();
     //await ContactConfig().refreshContactsLocally();
   }
 
-  //print(GetStorage().read('users'));
+ // print('ordersReceirve :::::: ${GetStorage().read('ordersReceirve')}');
   //GetStorage().remove('contacts');
   runApp(MyApp());
 }

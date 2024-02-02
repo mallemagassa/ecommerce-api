@@ -20,6 +20,7 @@ class _AuthEndPoints {
   final String sellerCompte = "${ApiEndPoints.baseUrl}/api/v1/createCompteSeller";
   final String getProductImage = "${ApiEndPoints.baseUrl}/api/v1/getProductImage";
   final String getImageProductM = "${ApiEndPoints.baseUrl}/api/v1/getImageProductM";
+  final String getImageOrderM = "${ApiEndPoints.baseUrl}/api/v1/getImageOrderM";
   final String sellers = "${ApiEndPoints.baseUrl}/api/v1/sellers";
   final String users = "${ApiEndPoints.baseUrl}/api/v1/users/";
   final String messages = "${ApiEndPoints.baseUrl}/api/v1/messages/";
@@ -27,7 +28,9 @@ class _AuthEndPoints {
   final String conversations = "${ApiEndPoints.baseUrl}/api/v1/conversations/";
   final String selectconver = "${ApiEndPoints.baseUrl}/api/v1/selectconver/";
   final String getOrderWithUser = "${ApiEndPoints.baseUrl}/api/v1/getOrderWithUser/";
+  final String getOrderReceived = "${ApiEndPoints.baseUrl}/api/v1/getOrderReceived/";
   final String getOrderAuth = "${ApiEndPoints.baseUrl}/api/v1/getOrderAuth/";
+  final String getOrderAuthReceirve = "${ApiEndPoints.baseUrl}/api/v1/getOrderAuthReceirve/";
   final String checkUserIsLine = "${ApiEndPoints.baseUrl}/api/v1/checkUserIsLine/";
   final String setToken = "${ApiEndPoints.baseUrl}/api/v1/setToken/";
   final String getOrderImage = "${ApiEndPoints.baseUrl}/api/v1/getOrderImage/";

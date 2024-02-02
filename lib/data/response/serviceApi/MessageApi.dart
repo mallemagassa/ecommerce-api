@@ -140,6 +140,7 @@ class MessageApi extends GetConnect {
       }
 
       var url = Uri.parse(imageUrl);
+      print('img url is $url');
       var response = await http.get(
         url,
         headers: {
@@ -285,8 +286,20 @@ class MessageApi extends GetConnect {
 
 
    Future<dynamic> sendMessage(MessageModel message, {String fileName = ''}) async {
+    print(message.text);
+    print(message.receiverId);
+    print(message.media);
+    print(message.type);
+    print(message.numOrder);
+    print(fileName);
+   // var res = MultipartFile(File(message.media!), filename: fileName);
+    //print('length is ${res.length}');
     try {
-      final formData = FormData({
+      //final formData = FormData();
+
+      final response = await post(
+        'https://ecommerce.doucsoft.com/api/v1/messages',
+        {
         'sender_id': message.senderId,
         'receiver_id': message.receiverId,
         'type': message.type == 'MessageType.text' ? 'text' : 'media',
@@ -296,30 +309,29 @@ class MessageApi extends GetConnect {
         'video': message.video ?? '',
         if (message.document != null && message.document!.isNotEmpty)
           'document': message.document ?? '',
+        if (message.numOrder != null && message.numOrder!.isNotEmpty)
+          'numOrder': message.numOrder ?? '',
         'conversation_id': message.conversationId ?? '',
         if (message.media != null && message.media!.isNotEmpty)
-          'media': MultipartFile(File(message.media!), filename: fileName, contentType: 'image/jpeg/png'),
-      });
-
-
-      final response = await post(
-        'https://ecommerce.doucsoft.com/api/v1/messages', // Votre URL cible
-        formData,
+          'media': message.media ?? '',//MultipartFile(File(message.media!), filename: fileName, contentType: 'image'),
+      },
         headers: {
           "X-Requested-With": "XMLHttpRequest",
           "Authorization": 'Bearer ${box.read('token')}',
         },
       );
 
+     // print('Code de statut HTTP non géré: ${response.body}');
+      print('Code de statut HTTP non géré: ${response.body}');
+      
       if (response.statusCode == 200) {
         return response.body;
       } else {
-        print('Code de statut HTTP non géré: ${response.statusCode}');
-        return null; // Ou une gestion d'erreur spécifique selon le cas
+        return response;
       }
     } catch (e) {
       print('Exception lors de l\'envoi du message: $e');
-        return null; // Ou une gestion d'erreur spécifique selon le cas
+        return e;
       }
   }
   

@@ -22,8 +22,9 @@ import 'package:get_storage/get_storage.dart';
 
   List<UserModel> parseSeller(String responseBody) {
     //debugPrint( responseBody.replaceAll(RegExp(r'\\'), '').substring(0,1));
+    String decodedText = formateUtf8(responseBody);
 
-    String jsonsDataString = responseBody.replaceAll(RegExp(r'\\'), '');
+    String jsonsDataString = decodedText.replaceAll(RegExp(r'\\'), '');
     //debugPrint('seller  $jsonsDataString');
     final parsed =
         jsonDecode(jsonsDataString.substring(1, jsonsDataString.length - 1)).cast<Map<String, dynamic>>();
@@ -370,5 +371,15 @@ class UserApi extends GetConnect {
     //print(response.body['message']);
   } 
 
+
+
+}
+String formateUtf8(String input) {
+  RegExp exp = RegExp(r"\\u[0-9a-fA-F]{4}");
+  return input.replaceAllMapped(exp, (Match m) {
+    String hex = m.group(0)!.substring(2); // Récupère les caractères hexadécimaux après '\u'
+    int code = int.parse(hex, radix: 16); // Convertit en valeur numérique
+    return String.fromCharCode(code); // Renvoie le caractère correspondant
+  });
 }
 

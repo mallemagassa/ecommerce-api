@@ -7,10 +7,8 @@ import 'package:bubble/bubble.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ecommerce/app/ChatMessagesStorage.dart';
 import 'package:ecommerce/app/CombinedMessage.dart';
-import 'package:ecommerce/app/models/CartModel.dart';
 import 'package:ecommerce/app/models/MessageModel.dart';
 import 'package:ecommerce/contactConfig/ContactConfig.dart';
-import 'package:ecommerce/contactConfig/OneSignal/OneSignal.dart';
 import 'package:ecommerce/data/response/serviceApi/MessageApi.dart';
 import 'package:ecommerce/data/response/serviceApi/UserApi.dart';
 import 'package:ecommerce/websoketConfig/PusherConfig.dart';
@@ -24,7 +22,6 @@ import 'package:getwidget/components/avatar/gf_avatar.dart';
 import 'package:getwidget/components/list_tile/gf_list_tile.dart';
 import 'package:image_picker/image_picker.dart';
 //import 'package:onesignal_flutter/onesignal_flutter.dart';
-import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pusher_client_fixed/pusher_client_fixed.dart';
 import 'package:zoom_tap_animation/zoom_tap_animation.dart';
@@ -240,7 +237,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
     await for (final element in MessageApi().selectconver(conversationId, receiverId)) {
       if (element is FileInfo) {
-        print('File is ${element.file.readAsStringSync()}');
+        //print('File is ${element.file.readAsStringSync()}');
         List<MessageModel> me = parseMessage(jsonEncode(element.file.readAsStringSync()).toString());
         List<MessageModel> converList = me.where((element) => element.conversationId == conversationId).toList();
 
@@ -272,7 +269,7 @@ class _ChatScreenState extends State<ChatScreen> {
           } else if(element.media != null && element.media!.isNotEmpty && element.text != null && element.text!.isNotEmpty){
             final Directory appDir = await getApplicationDocumentsDirectory();
             final String localPath = '${appDir.path}/${element.media.toString().substring(29)}';
-            //final File imgFile = File(localPath);
+            final File imgFile = File(localPath);
             final Uint8List? response = await MessageApi(). downloadAndDisplayImage('https://ecommerce.doucsoft.com/api/v1/getImageMessage/${element.media?.substring(29)}');
                           
             if (response != null) {
@@ -281,6 +278,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       messageId:element.id.toString() ,
                       authorId: types.User(id: element.senderId.toString(), ),
                       type: types.MessageType.unsupported,
+                      numOrder: element.numOrder,
                       text: types.TextMessage(
                               author: types.User(id: element.senderId.toString(), ),
                               id:element.id.toString(),
@@ -479,7 +477,6 @@ class _ChatScreenState extends State<ChatScreen> {
                   setState(() {
                     if (messageId.contains(p1.id)) {
                       messageId.remove(p1.id);
-                      
                     }else{
                       messageId.add(p1.id);
                     }
@@ -531,26 +528,30 @@ class _ChatScreenState extends State<ChatScreen> {
       return GestureDetector(
         onTap: (){
           if (!isVisible) {
+            print('user id is ${argumentData['id']}');
+           //if ( _user.id != message.author.id) {
+              
+            Get.toNamed('/detailCartOwnerScreen', arguments: <String, dynamic>{
+                'id': argumentData['id'],
+                'url': argumentData['url'],
+                'phone': argumentData['phone'],
+                'name': argumentData['name'],
+                'numOrder': combinedMessage.numOrder,
+              },
+            );
 
-           if ( _user.id != message.author.id) {
-               Get.toNamed('/detailCartOwnerScreen', arguments: <String, dynamic>{
-                'id': argumentData['id'],
-                'url': argumentData['url'],
-                'phone': argumentData['phone'],
-                'name': argumentData['name'],
-              },
+           print('num order is ${combinedMessage.numOrder}');
+          //  }else{
+          //   print('num order is ${combinedMessage.numOrder}');
+          //    Get.toNamed('/detailCartScreen', arguments: <String, dynamic>{
+          //       'id': argumentData['id'],
+          //       'url': argumentData['url'],
+          //       'phone': argumentData['phone'],
+          //       'name': argumentData['name'],
+          //     },
             
-            );
-           }else{
-             Get.toNamed('/detailCartScreen', arguments: <String, dynamic>{
-                'id': argumentData['id'],
-                'url': argumentData['url'],
-                'phone': argumentData['phone'],
-                'name': argumentData['name'],
-              },
-            
-            );
-           }
+          //   );
+          //  }
             // print(' message.author.id  ${ message.id}');
           }else{
             setState(() {
@@ -585,11 +586,11 @@ class _ChatScreenState extends State<ChatScreen> {
                   padding: const EdgeInsets.only(top: 8.0),
                   child: Image.file(File(combinedMessage.image!.uri))
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 10,
                 ),
                 Text(
-                '${combinedMessage.text.text}',
+                combinedMessage.text.text,
                 style:  TextStyle(
                   color: _user.id != message.author.id && message.type == types.MessageType.unsupported ?
                    Colors.black : Colors.white ,
@@ -621,41 +622,46 @@ class _ChatScreenState extends State<ChatScreen> {
 }
 
  Future<void> _addMessage(types.TextMessage message) async {
-  await MessageApi().sendMessage(
-    MessageModel(
-      senderId: int.parse(message.author.id),
-      receiverId: argumentData['id'],
-      type: message.type.toString(),
-      text: message.text,
-    ),
-  );
-  // Mettre à jour la conversation sans bloquer l'interface utilisateur
-  _updateConversation();
-}
+    await MessageApi().sendMessage(
+      MessageModel(
+        senderId: int.parse(message.author.id),
+        receiverId: argumentData['id'],
+        type: message.type.toString(),
+        text: message.text,
+      ),
+    );
+    // Mettre à jour la conversation sans bloquer l'interface utilisateur
+    _updateConversation();
+  }
 
-Future<void> _updateConversation() async {
-  await ContactConfig().loadAndgetConversation();
-  setState(() {
-    MessageApi().selectconver(conv.isNotEmpty ? conv[0]['conversation_id'] ?? 0 : 0, argumentData['id']);
-    _messagesController;
-  });
-}
+  Future<void> _updateConversation() async {
+    await ContactConfig().loadAndgetConversation();
+    setState(() {
+      MessageApi().selectconver(conv.isNotEmpty ? conv[0]['conversation_id'] ?? 0 : 0, argumentData['id']);
+    // _messagesController;
+    });
+  }
 
   Future<void> _addMessageOrder(List<Map<String, dynamic>> map) async{
-     if (map.first['image'] != null && map.first['image']!.isNotEmpty) {
-          final Directory appDir = await getApplicationDocumentsDirectory();
-          final String localPath = '${appDir.path}/${map.first['image'].toString()}';
-          final Uint8List? response = await MessageApi().downloadAndDisplayImage('https://ecommerce.doucsoft.com/api/v1/getImageProductM${map.first['image']}');//.substring(29)
 
-          if (response != null) {
-            await MessageApi().sendMessage(MessageModel(senderId: 1, receiverId: argumentData['id'], type: 'unsupported', text:'Votre commande est passe avec succes, cliquez pour voir la détails de la commande', media:localPath ), fileName: localPath.substring(29));
-          }
+    //  if (map.isNotEmpty) {
+    //       final Directory appDir = await getApplicationDocumentsDirectory();
+    //       final String localPath = '${appDir.path}/${map.first['imageUrl'].toString().substring(21)}';
+    //       final File imgFile = File(localPath);
+    //       print(localPath);
+    //       final Uint8List? response = await MessageApi().downloadAndDisplayImage('https://ecommerce.doucsoft.com/api/v1/getImageOrderM/${map.first['imageUrl'].toString().substring(21)}');//.substring(29)
 
-          setState(() {
-            MessageApi().selectconver(conv.isNotEmpty ? conv[0]['conversation_id'] ?? 0 :0, argumentData['id']);
-            _messagesController;
-          });
-     }
+    //       if (response != null) {
+    //         // print('num order is ${element['numOrder']}');
+    //         await MessageApi().sendMessage(MessageModel(senderId: 1, receiverId: argumentData['id'], type: 'unsupported', text:'Votre commande a été passée avec succès. Cliquez pour voir les détails de la commande.', media:localPath, numOrder:map.first['numOrder'] ), fileName: localPath.substring(47));
+    //       }
+            
+
+    //       setState(() {
+    //         MessageApi().selectconver(conv.isNotEmpty ? conv[0]['conversation_id'] ?? 0 :0, argumentData['id']);
+    //         _messagesController;
+    //       });
+    //  }
  
   }
 

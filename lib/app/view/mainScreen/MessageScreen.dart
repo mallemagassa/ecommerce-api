@@ -7,7 +7,6 @@ import 'package:ecommerce/utils/NamePage.dart';
 import 'package:ecommerce/utils/PageTitle.dart';
 import 'package:ecommerce/utils/SizeHeigth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:getwidget/components/avatar/gf_avatar.dart';
@@ -27,7 +26,7 @@ class _MessageScreenState extends State<MessageScreen> {
     super.initState();
     
     // setState(() {
-      WidgetsBinding.instance?.addPostFrameCallback((_) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
       setState(() {
         ContactConfig().loadAndgetConversation();
       });
@@ -94,7 +93,7 @@ class _MessageScreenState extends State<MessageScreen> {
   @override
   Widget build(BuildContext context) {
     //GetStorage().write('conversations', conversations);
-    print('$conversations');
+    print('conversations :::::::: $conversations');
     return Scaffold(
         backgroundColor: Colors.white,
         body: Column(
@@ -103,7 +102,7 @@ class _MessageScreenState extends State<MessageScreen> {
          Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            NamePage(title: "Echanges"),
+            const NamePage(title: "Echanges"),
             if(isVisible)...[
               IconButton(
                 onPressed: () {
@@ -119,9 +118,6 @@ class _MessageScreenState extends State<MessageScreen> {
         const DeviderPage(),
         Expanded(
             child:  ListView.builder(
-
-                      shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
                       itemCount: (conversations?.length > 0) ? conversations?.length : 0,
                       itemBuilder: (context, index) {
                         String? processedImageUrl;
@@ -130,7 +126,6 @@ class _MessageScreenState extends State<MessageScreen> {
                           processedImageUrl = imageUrl != null && imageUrl.isNotEmpty && imageUrl.length > 22
                               ? "${ApiEndPoints.authEndPoints.profilUser}${imageUrl.substring(22)}"
                               : "${ApiEndPoints.authEndPoints.profilUser}defaultAvatar.jpg";
-                          print(processedImageUrl);
                         }
                         
                         return Column(

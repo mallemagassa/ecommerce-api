@@ -81,10 +81,36 @@ class OrderApi extends GetConnect{
     } else {
       throw Exception('Failed to load orders');
     }
-  } catch (e) {
-    print('Error fetching orders: $e');
-    return []; // Retourne une liste vide en cas d'erreur
+    } catch (e) {
+      print('Error fetching orders: $e');
+      return []; // Retourne une liste vide en cas d'erreur
+    }
   }
+  Future<List<UserModel>> getOrderReceived() async{
+    try {
+    var file = await get(
+      ApiEndPoints.authEndPoints.getOrderReceived,
+      headers: {
+        //"Content-Type":"application/json",
+        "X-Requested-With": "XMLHttpRequest",
+        HttpHeaders.authorizationHeader: 'Bearer ${box.read('token')}',
+      },
+    );
+
+    //print('Response body type: ${file.body.runtimeType}');
+    //print('Response body content::::::::::::::::::::: ${file.body.toString()}');
+
+    if (file.statusCode == 200) {
+      // Vérifiez si la réponse est une chaîne JSON valide
+      //var parsedData = parseorderModel(jsonDecode(file.body).toString()); // Décoder la réponse JSON
+      return compute(parseorderModel, jsonEncode(file.body).toString());
+    } else {
+      throw Exception('Failed to load orders');
+    }
+    } catch (e) {
+      print('Error fetching orders: $e');
+      return []; // Retourne une liste vide en cas d'erreur
+    }
   }
 
  Future<Map<String, dynamic>> createOrderModel(OrderModel orderModel) async {
@@ -100,6 +126,8 @@ class OrderApi extends GetConnect{
       'product_id': orderModel.productId,
       'imageUrl': orderModel.imageUrl,
       'product_name': orderModel.productName,
+      'numOrder': orderModel.numOrder,
+      'product_price': orderModel.productPrice,
     };
 
     Response response = await post(
@@ -121,11 +149,59 @@ class OrderApi extends GetConnect{
   }
 
 
-  Future<List<OrderModel>> getAuthOrders() async{
+  Future<List<OrderModel>> getAuthOrders(int id) async{
 
     CacheManager instance = CacheOrder.instance;
 
-    var file = await instance.getSingleFile(ApiEndPoints.authEndPoints.getOrderAuth,
+    var file = await instance.getSingleFile(ApiEndPoints.authEndPoints.getOrderAuth+id.toString(),
+          //key:'cacheOrder' ,5
+          headers: {
+            //'Content-Type': 'multipart/form-data',
+            'cache-control': 'private, max-age=120',
+            "X-Requested-With": "XMLHttpRequest",
+            HttpHeaders.authorizationHeader: 'Bearer ${box.read('token')}',
+          },
+        );
+
+        // ignore: unnecessary_null_comparison
+        if (file != null && await file.exists()) {
+          var res = await file.readAsString();
+           //print('response produit est $res');
+          return compute(parseOrder, jsonEncode(res).toString());
+          //Response(body:compute(parseorderModel, jsonEncode(res).toString()), statusCode:200);
+        }
+      return compute(parseOrder, jsonEncode({}).toString());
+  }
+
+  Future<List<OrderModel>> getOrderAuthReceirve(int id) async{
+
+    CacheManager instance = CacheOrder.instance;
+
+    var file = await instance.getSingleFile(ApiEndPoints.authEndPoints.getOrderAuthReceirve+id.toString(),
+          //key:'cacheOrder' ,5
+          headers: {
+            //'Content-Type': 'multipart/form-data',
+            'cache-control': 'private, max-age=120',
+            "X-Requested-With": "XMLHttpRequest",
+            HttpHeaders.authorizationHeader: 'Bearer ${box.read('token')}',
+          },
+        );
+
+        // ignore: unnecessary_null_comparison
+        if (file != null && await file.exists()) {
+          var res = await file.readAsString();
+           //print('response produit est $res');
+          return compute(parseOrder, jsonEncode(res).toString());
+          //Response(body:compute(parseorderModel, jsonEncode(res).toString()), statusCode:200);
+        }
+      return compute(parseOrder, jsonEncode({}).toString());
+  }
+
+  Future<List<OrderModel>> getOrders() async{
+
+    CacheManager instance = CacheOrder.instance;
+
+    var file = await instance.getSingleFile(ApiEndPoints.authEndPoints.orders,
           //key:'cacheOrder' ,
           headers: {
             //'Content-Type': 'multipart/form-data',
@@ -162,7 +238,7 @@ class OrderApi extends GetConnect{
         // ignore: unnecessary_null_comparison
         if (file != null && await file.exists()) {
           var res = await file.readAsString();
-           print('response produit est $res');
+           print('response order de est $res');
           return compute(parseOrder, jsonEncode(res).toString());
           //Response(body:compute(parseorderModel, jsonEncode(res).toString()), statusCode:200);
         }

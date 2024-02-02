@@ -7,6 +7,7 @@ import 'package:ecommerce/utils/ApiEndPoints.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:intl/intl.dart';
 
 class CartCArd extends StatelessWidget {
   final CartController cartController = Get.find();
@@ -20,7 +21,7 @@ class CartCArd extends StatelessWidget {
   CartCArd({required this.product, this.function1, this.function2});
   @override
   Widget build(BuildContext context) {
-    print('imaaaaaaaaaa : ${ApiEndPoints.authEndPoints.getProductImage}${product.product['image']}');
+    //print('imaaaaaaaaaa : ${ApiEndPoints.authEndPoints.getProductImage}${product.product['image']}');
     return Container(
       height: 114,
       padding: EdgeInsets.only(left: 6, top: 10, bottom: 10, right: 10),
@@ -78,7 +79,7 @@ class CartCArd extends StatelessWidget {
               SizedBox(
                 height: 25,
               ),
-              Text(product.product['price'].toString())
+              Text('${NumberFormat.currency(locale: 'fr', symbol: 'F').format(product.product['price'])} ')
             ],
           ),
           Align(

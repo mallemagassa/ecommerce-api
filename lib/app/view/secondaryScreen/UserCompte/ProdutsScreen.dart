@@ -7,7 +7,6 @@ import 'package:ecommerce/utils/MainButton.dart';
 import 'package:ecommerce/utils/NamePageSecondary.dart';
 import 'package:ecommerce/utils/SizeHeigth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:zoom_tap_animation/zoom_tap_animation.dart';

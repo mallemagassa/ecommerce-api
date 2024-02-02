@@ -5,11 +5,13 @@ class OrderModel{
   final int quantity;
   final int? userId;
   final int productId;
+  final int productPrice;
   final String imageUrl;
   final String productName;
+  final String? count;
   final DateTime? createdAt;
                                         
-  OrderModel({this.id, this.numOrder, required this.priceTotal, required this.productName, required this.imageUrl, required this.quantity, this.userId, required this.productId, this.createdAt});
+  OrderModel({this.id, this.numOrder, this.count, required this.priceTotal, required this.productPrice, required this.productName, required this.imageUrl, required this.quantity, this.userId, required this.productId, this.createdAt});
 
 
    factory OrderModel.fromJson(Map<String, dynamic> json) {
@@ -22,6 +24,8 @@ class OrderModel{
       productId: json['product_id'] as int,
       imageUrl: json['imageUrl'] as String,
       productName: json['product_name'] as String,
+      productPrice: json['product_price'] as int,
+      count: json['count'].toString() as String?,
       createdAt: DateTime.tryParse(json['created_at']),
     );
   }
@@ -35,5 +39,7 @@ class OrderModel{
         productId = map['product_id'],
         imageUrl = map['imageUrl'],
         productName = map['product_name'],
+        productPrice = map['product_price'],
+        count = map['count'],
         createdAt = map['created_at'];
 }

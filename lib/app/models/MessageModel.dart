@@ -10,6 +10,7 @@ class MessageModel{
   final String? text;
   final String? video;
   final String? document;
+  final String? numOrder;
   final int? conversationId;
   int? size;
 
@@ -23,6 +24,7 @@ class MessageModel{
     this.text, 
     this.video, 
     this.document, 
+    this.numOrder, 
     this.conversationId,
     this.size,
   });
@@ -36,6 +38,7 @@ class MessageModel{
       media: json['media'] as String?,
       text: json['text'] as String?,
       document: json['document'] as String?,
+      numOrder: json['numOrder'] as String?,
       conversationId: json['conversation_id'] as int?,
     );
   }

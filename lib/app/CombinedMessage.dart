@@ -4,6 +4,7 @@ import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 class CombinedMessage extends types.Message {
   final types.TextMessage text;
   final types.ImageMessage image;
+  final String? numOrder;
 
   CombinedMessage({
     required String messageId,
@@ -11,6 +12,7 @@ class CombinedMessage extends types.Message {
     required types.MessageType type,
     required this.text,
     required this.image,
+    this.numOrder,
     required DateTime createdAt,
     bool isFromCurrentUser = false,
   }) : super(

@@ -10,6 +10,8 @@ import 'package:intl_phone_field/phone_number.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class ContactConfig {
+
+  final box = GetStorage();
   
   Future<PermissionStatus> _getContactPermission() async {
     PermissionStatus permission = await Permission.contacts.status;
@@ -21,9 +23,10 @@ class ContactConfig {
       return permission;
     }
   }
+
   Future<void> loadAndgetConversation() async {
     final List<Map<String, dynamic>> conversation = [];
-    final List<dynamic> usersDynamic = GetStorage().read('users') ?? [];
+    final List<dynamic> usersDynamic = box.read('users') ?? [];
     final List<Map<String, dynamic>> users = List<Map<String, dynamic>>.from(usersDynamic);
     final conversations = await ConversationApi().getConversation();
 
@@ -42,17 +45,44 @@ class ContactConfig {
     });
 
     print('conversation : $conversation');
-    GetStorage().write('conversations', conversation);
+    box.write('conversations', conversation);
     //return conversation[0]['conversation_id'];
   }
 
+  Future<void> loadAndgetMyOdersReceirve() async {
+    final List<Map<String, dynamic>> orderR = [];
+    final List<dynamic> usersDynamic = box.read('users') ?? [];
+    final List<Map<String, dynamic>> users = List<Map<String, dynamic>>.from(usersDynamic);
+    final ordersR = await OrderApi().getOrderReceived();
+
+    print('My order data issssssssssss $ordersR');
+
+    ordersR.forEach((orderData) {
+      final phone = orderData.phone;
+      final matchedUser = users.firstWhere(
+        (user) => user['phone'] == phone,
+        orElse: () => {},
+      );
+
+      if (matchedUser != null) {
+        orderR.add(matchedUser);
+      }
+    });
+
+    print('After orders.forEach $orderR');
+
+    box.write('ordersReceirve', orderR);
+
+    print('ordersReceirve :::::: ${box.read('ordersReceirve')}');
+  }
+  
   Future<void> loadAndgetMyOders() async {
     final List<Map<String, dynamic>> order = [];
-    final List<dynamic> usersDynamic = GetStorage().read('users') ?? [];
+    final List<dynamic> usersDynamic = box.read('users') ?? [];
     final List<Map<String, dynamic>> users = List<Map<String, dynamic>>.from(usersDynamic);
     final orders = await OrderApi().getMyOders();
 
-     print('My order data is $orders');
+     //print('My order data issssssss $orders');
 
     orders.forEach((orderData) {
      // print('My order is 1 $orderData');
@@ -68,9 +98,9 @@ class ContactConfig {
       }
     });
 
-    print('My order is $order');
+    //print('My order is $order');
 
-    GetStorage().write('orders', order);
+    box.write('orders', order);
 
   }
 
@@ -79,7 +109,7 @@ class ContactConfig {
   Future<void> loadAndStoreContacts() async {
     final box = GetStorage();
     // Vérifier si les contacts sont déjà stockés localement
-    print('usssss ${box.read('users')}');
+    // print('usssss ${box.read('users')}');
 
     if (box.read('users') == null) {
       Iterable<Contact>? contacts;
@@ -98,13 +128,26 @@ class ContactConfig {
       // Vérifier si des contacts ont été récupérés
       if (contacts != null && contacts.isNotEmpty) {
         // Convertir les contacts en une liste utilisable pour le stockage
+        final conversations = await ConversationApi().getConversation();
+        final orders = await OrderApi().getMyOders();
         List contactForBa = [];
         List<List<dynamic>> users = [];
         List<List<String>> profil = [];
+        List<String> conversationPhone = [];
+        List<String> ordersPhone = [];
+
+        conversations.forEach((conversationData) {
+            conversationPhone.add(conversationData.phone);
+        });
+
+        orders.forEach((conversationData) {
+            ordersPhone.add(conversationData.phone);
+        });
+
 
         //final contactsList = contacts.map((contact) => contact.toMap()).toList();
         await UserApi().getUser().then((value) {
-          //print('Value user is ${box.read('users')}');
+          print('Value user is ${value}');
           List<List<String>> matchingContacts = [];
           List userPhone = [];
           String phone = '';
@@ -133,7 +176,23 @@ class ContactConfig {
           });
 
           contactForBa = matchingContacts.where((element) => userPhone.contains(element[0])).toList();
-          print('contactForBa ::: $contactForBa');
+
+          Set<String> numerosListe1 = Set<String>.from(contactForBa.map((item) => '${item[0]}'));
+          Set<String> numerosListe2 = Set<String>.from(conversationPhone);
+          Set<String> numerosListe3 = Set<String>.from(ordersPhone);
+
+          numerosListe3.forEach((numero) {
+            if (!numerosListe1.contains(numero)) {
+              contactForBa.add([numero, numero]);
+            }
+          });
+
+          numerosListe2.forEach((numero) {
+            if (!numerosListe1.contains(numero)) {
+              contactForBa.add([numero, numero]);
+            }
+          });
+
           Map<String, String> combinedMap = {};
 
           for (List<dynamic> item in contactForBa) {
@@ -230,6 +289,10 @@ class ContactConfig {
 Future<void> refreshContactsLocally() async {
   final box = GetStorage();
   List<dynamic>? localContacts = box.read('users');
+  final conversations = await ConversationApi().getConversation();
+  final orders = await OrderApi().getMyOders();
+
+    
 
   // Charger les contacts actuels du téléphone
   Iterable<Contact> phoneContacts = await ContactsService.getContacts(
@@ -253,16 +316,18 @@ Future<void> refreshContactsLocally() async {
     List contactForBa = [];
     List<List<dynamic>> users = [];
     List<List<String>> profil = [];
+    List<String> conversationPhone = [];
+    List<String> ordersPhone = [];
 
-    // updatedContacts.forEach((element) {
-      
-    // });
-   // print('updatedContacts $updatedContacts');
 
-    // Comparer les contacts existants avec les nouveaux contacts
-    // Identifier les ajouts, suppressions et modifications
-    // Mettre à jour les données locales en conséquence
 
+    conversations.forEach((conversationData) {
+        conversationPhone.add(conversationData.phone);
+    });
+
+    orders.forEach((orderData) {
+        ordersPhone.add(orderData.phone);
+    });
 
     await UserApi().getUser().then((value) {
       //print('Value user is ${box.read('users')}');
@@ -293,13 +358,34 @@ Future<void> refreshContactsLocally() async {
             });
       });
 
+
       contactForBa = matchingContacts.where((element) => userPhone.contains(element[0])).toList();
 
+      Set<String> numerosListe1 = Set<String>.from(contactForBa.map((item) => '${item[0]}'));
+      Set<String> numerosListe2 = Set<String>.from(conversationPhone);
+      Set<String> numerosListe3 = Set<String>.from(ordersPhone);
+
+      numerosListe3.forEach((numero) {
+        if (!numerosListe1.contains(numero)) {
+          contactForBa.add([numero, numero]);
+        }
+      });
+
+
+      numerosListe2.forEach((numero) {
+        if (!numerosListe1.contains(numero)) {
+          contactForBa.add([numero, numero]);
+        }
+      });
+
+      print('contactForBa ::::::::: $contactForBa'); 
+      
       Map<String, String> combinedMap = {};
 
       for (List<dynamic> item in contactForBa) {
         combinedMap[item[0]] = item[1];
       }
+      
 
       for (List<dynamic> item in users) {
         if (combinedMap.containsKey(item[1])) {

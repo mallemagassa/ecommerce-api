@@ -4,6 +4,7 @@ import 'package:ecommerce/app/view/addContact/AddContactScreen.dart';
 import 'package:ecommerce/app/view/secondaryScreen/Message/ChatScreen.dart';
 import 'package:ecommerce/app/view/secondaryScreen/Order/CartScreen.dart';
 import 'package:ecommerce/app/view/secondaryScreen/Order/DetailCartOwnerScreen.dart';
+import 'package:ecommerce/app/view/secondaryScreen/Order/DetailCartReceirveScreen.dart';
 import 'package:ecommerce/app/view/secondaryScreen/Order/DetailCartScreen.dart';
 import 'package:ecommerce/app/view/secondaryScreen/Purchases/DetailsProduct.dart';
 import 'package:ecommerce/app/view/secondaryScreen/Purchases/DetailsProductImage.dart';
@@ -145,6 +146,12 @@ class AppRoutes {
     GetPage(
       name: NameRoute.detailCartScreen, 
       page: () =>  DetailCartScreen(), 
+      transition: Transition.rightToLeftWithFade,
+      transitionDuration:const Duration(milliseconds: 250)
+    ),
+    GetPage(
+      name: NameRoute.detailCartReceirveScreen, 
+      page: () =>  DetailCartReceirveScreen(), 
       transition: Transition.rightToLeftWithFade,
       transitionDuration:const Duration(milliseconds: 250)
     ),

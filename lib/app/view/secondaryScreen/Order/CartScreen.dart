@@ -1,6 +1,10 @@
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:ecommerce/app/controllers/CartController.dart';
+import 'package:ecommerce/app/models/MessageModel.dart';
 import 'package:ecommerce/app/models/OrderModel.dart';
-import 'package:ecommerce/contactConfig/ContactConfig.dart';
+import 'package:ecommerce/data/response/serviceApi/MessageApi.dart';
 import 'package:ecommerce/data/response/serviceApi/OrderApi.dart';
 import 'package:ecommerce/utils/CartArd.dart';
 import 'package:ecommerce/utils/DefaultTitle.dart';
@@ -8,15 +12,35 @@ import 'package:ecommerce/utils/SizeHeigth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:zoom_tap_animation/zoom_tap_animation.dart';
+import 'package:intl/intl.dart';
+import 'dart:math';
 
-class CartScreen extends StatelessWidget {
+// ignore: must_be_immutable
+class CartScreen extends StatefulWidget {
+
   CartScreen({super.key});
+
+  @override
+  State<CartScreen> createState() => _CartScreenState();
+}
+
+class _CartScreenState extends State<CartScreen> {
   final CartController cartController = Get.put(CartController());
+
   final argumentData = Get.arguments;
+
   final box = GetStorage();
+
   double priceTotal = 0;
+
   int qtyProduct = 1;
+
+  final List<Map<String, dynamic>> map = [];
+
+  bool isLoading = false;
+
   @override
   Widget build(BuildContext context) {
     // print('ellllle  '+argumentData['productsCart'].toString());
@@ -77,7 +101,7 @@ class CartScreen extends StatelessWidget {
                                       .toList()),
                             );
                           }),
-                          SizedBox(
+                          const SizedBox(
                             height: 150,
                           )
                         ],
@@ -98,8 +122,9 @@ class CartScreen extends StatelessWidget {
                               GetBuilder<CartController>(builder: (controller) {
                                 priceTotal = controller.count2;
                                 //print('Price total is ${controller.count2}');
-                                return Text(
-                                  '${controller.count2}',
+                                return 
+                                Text(
+                                  NumberFormat.currency(locale: 'fr', symbol: 'F', decimalDigits: 0).format(controller.count2),
                                   style: TextStyle(fontSize: 20),
                                 );
                               }),
@@ -110,35 +135,60 @@ class CartScreen extends StatelessWidget {
                           ),
                           ZoomTapAnimation(
                             child: GestureDetector(
-                              onTap: (){
-                                Get.offAndToNamed("/chatScreen", arguments: <String, dynamic>{
-                                  'products': argumentData['productsCart'],//cartController.cartItems,
-                                  'id': argumentData['userId'],
-                                  'name': argumentData['userName'],
-                                  'url': argumentData['userUrl'],
-                                  'phone': argumentData['phone'],
-                                });
-                               
-                                cartController.cartItems.forEach((element) async {
-                                  String imageUrl = element.product['image'];
-                                  final map = {
-                                    'priceTotal':priceTotal.toInt(),
-                                    'quantity':qtyProduct,
-                                    'product_id':element.product['id'],
-                                    'imageUrl':imageUrl.replaceAll('/', ''),
-                                    'product_name':element.product['name'],
-                                  };
-                                  
-                                  print('ellement est name ${element.product['name']}');
-                                  print('qtyProduct is : $qtyProduct et $priceTotal');
+                              onTap: () async{
+                                    if (!isLoading) {
+                                      try {
+                                      
+                                        setState(() {
+                                          isLoading = true;
+                                        });
 
-                                  OrderModel orders = OrderModel.fromMap(map);
+                                        int numOrder = generateUniqueCode();
 
-                                  await OrderApi().createOrderModel(orders);
-                                 // await ContactConfig().loadAndgetMyOders();
-                                },);
+                                        final List<Map<String, dynamic>> map = [];
 
-                               //cartController.cartItems.clear();
+                                        await Future.wait(cartController.cartItems.map((element) async {
+                                          String imageUrl = element.product['image'];
+                                          final maps = {
+                                            'priceTotal':element.product['price']*element.qty,
+                                            'quantity': element.qty,
+                                            'product_id': element.product['id'],
+                                            'numOrder': 'C${DateFormat('ddMMyyyy').format(DateTime.now()) }$numOrder',
+                                            'imageUrl': imageUrl.replaceAll('/', ''),
+                                            'product_name': element.product['name'],
+                                            'product_price': element.product['price'],
+                                          };
+
+                                          OrderModel orders = OrderModel.fromMap(maps);
+
+                                          var res = await OrderApi().createOrderModel(orders);
+                                          map.add(res['orders']);
+                                        }));
+
+                                        if (map.isNotEmpty) {
+                                          await MessageApi().sendMessage(MessageModel(senderId: 1, receiverId: argumentData['userId'], type: 'unsupported', text: 'Votre commande a été passée avec succès. Cliquez pour voir les détails de la commande.', media: map.first['imageUrl'].substring(21), numOrder: map.first['numOrder'])); //fileName: localPath.substring(47)
+                                        }
+
+                                        Get.offAndToNamed("/chatScreen", arguments: <String, dynamic>{
+                                          'id': argumentData['userId'],
+                                          'name': argumentData['userName'],
+                                          'url': argumentData['userUrl'],
+                                          'phone': argumentData['phone'],
+                                        });
+
+                                        // cartController.cartItems.clear();
+                                        // cartController.count2 = 0;
+
+                                        setState(() {
+                                          isLoading = false;
+                                        });
+                                      } catch (e) {
+                                        print('Erreur lors de la validation de la commande : $e');
+                                        setState(() {
+                                          isLoading = false;
+                                        });
+                                      }
+                                    }
                               },
                               child: Container(
                                 height: 64,
@@ -147,12 +197,12 @@ class CartScreen extends StatelessWidget {
                                   color: Colors.blue,
                                   borderRadius: BorderRadius.all(Radius.circular(15)),
                                 ),
-                                child: const Center(
-                                  child: Text(
+                                child:  Center(
+                                  child: !isLoading ? const Text(
                                     ' Valider votre Commande',
                                     style:
                                         TextStyle(fontSize: 24, color: Colors.white),
-                                  ),
+                                  ): const CircularProgressIndicator(color: Colors.white,)
                                 ),
                               ),
                             ),
@@ -166,5 +216,17 @@ class CartScreen extends StatelessWidget {
             )
       ])
     );
+  }
+
+  int generateUniqueCode() {
+    List<OrderModel> orders = [];
+    Random random = new Random();
+    int numOrder;
+
+    do {
+      numOrder = 1000 + random.nextInt(9000);
+    } while (orders.any((order) => order.numOrder == numOrder));
+
+    return numOrder;
   }
 }

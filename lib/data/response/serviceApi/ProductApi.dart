@@ -157,6 +157,7 @@ class ProductApi extends GetConnect {
 
       );
 
+      print('Response is body ${response.body}');
       if (response.statusCode == 200) {
         //await getData();
         return response.body;

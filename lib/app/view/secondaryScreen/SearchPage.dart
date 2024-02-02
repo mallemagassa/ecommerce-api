@@ -127,15 +127,15 @@ void initState() {
                                           width: 160,
                                           height: 160,
                                           //cacheKey:"profil",
-                                          fadeOutDuration: Duration(seconds: 1),
-                                          fadeInDuration:Duration(seconds: 1),
+                                          fadeOutDuration: const Duration(seconds: 1),
+                                          fadeInDuration:const Duration(seconds: 1),
                                           httpHeaders: {
                                                     "Authorization":
                                                         "Bearer ${box.read('token')}"
                                                   },
                                           progressIndicatorBuilder: (context, url, downloadProgress) => 
                                                   CircularProgressIndicator(value: downloadProgress.progress),
-                                          errorWidget: (context, url, error) => Icon(Icons.error),
+                                          errorWidget: (context, url, error) => const Icon(Icons.error),
                                           imageBuilder: (context, imageProvider) => Container(
                                             decoration: BoxDecoration(
                                             borderRadius: BorderRadius.circular(70),
